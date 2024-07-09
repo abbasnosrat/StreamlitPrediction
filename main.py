@@ -42,11 +42,12 @@ try:
     got_data = True
 except: got_data = False
 if got_data:
+    products = list(df.GoodName.unique())
     product = st.sidebar.selectbox(label="Please select a product", options=products)
     horizon = int(st.sidebar.slider(label="Select Prediction Horizon", min_value=2, max_value=30, value=5))
     test_size_manual = st.sidebar.number_input(label="Select Test Size", min_value=0, max_value=30, value=0)
     manual = st.sidebar.checkbox("Manual Mode")
-    products = list(df.GoodName.unique())
+    
     changepoint_prior_scale_manual=float(st.sidebar.text_input(label="Select changepoint_prior_scale", value=1))
     seasonality_prior_scale_manual=float(st.sidebar.text_input(label="Select seasonality_prior_scale", value=1))
 
