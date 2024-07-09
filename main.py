@@ -35,20 +35,22 @@ st.write("""
          """)
 st.sidebar.write("Controls")
 file = st.sidebar.file_uploader("Uppload Your Dataset", type=".csv")
-horizon = int(st.sidebar.slider(label="Select Prediction Horizon", min_value=2, max_value=30, value=5))
-test_size_manual = st.sidebar.number_input(label="Select Test Size", min_value=0, max_value=30, value=0)
+
 # df = pd.read_csv("SalesData.csv") if file is None else pd.read_csv(file)
 try:
     df = pd.read_csv(file)
     got_data = True
 except: got_data = False
 if got_data:
+    product = st.sidebar.selectbox(label="Please select a product", options=products)
+    horizon = int(st.sidebar.slider(label="Select Prediction Horizon", min_value=2, max_value=30, value=5))
+    test_size_manual = st.sidebar.number_input(label="Select Test Size", min_value=0, max_value=30, value=0)
     manual = st.sidebar.checkbox("Manual Mode")
     products = list(df.GoodName.unique())
     changepoint_prior_scale_manual=float(st.sidebar.text_input(label="Select changepoint_prior_scale", value=1))
     seasonality_prior_scale_manual=float(st.sidebar.text_input(label="Select seasonality_prior_scale", value=1))
 
-    product = st.sidebar.selectbox(label="Please select a product", options=products)
+    
     st.write(product)
 
     df_t = df.query(f"GoodName == '{product}'").reset_index(drop=True)
