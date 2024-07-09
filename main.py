@@ -14,7 +14,9 @@ import plotly.graph_objects as go
 
 
 
-
+@st.cache_data
+def convert_df(df):
+    return df.to_csv(index=False).encode('utf-8')
 
 
 def to_georgian(date):
@@ -38,6 +40,9 @@ test_size_manual = st.sidebar.number_input(label="Select Test Size", min_value=0
 # df = pd.read_csv("SalesData.csv") if file is None else pd.read_csv(file)
 try:
     df = pd.read_csv(file)
+    got_data = True
+except: got_data = False
+if got_data:
     manual = st.sidebar.checkbox("Manual Mode")
     products = list(df.GoodName.unique())
     changepoint_prior_scale_manual=float(st.sidebar.text_input(label="Select changepoint_prior_scale", value=1))
@@ -152,9 +157,7 @@ try:
     st.plotly_chart(fig_final)
     df_final = pd.DataFrame({"Date": ticks, "Yhat":pred["yhat"], "Yhat_upper":pred["yhat_upper"], "Yhat_lower": pred["yhat_lower"]})
 
-    @st.cache_data
-    def convert_df(df):
-        return df.to_csv(index=False).encode('utf-8')
+
     csv = convert_df(df_final)
 
     st.download_button(
@@ -166,6 +169,10 @@ try:
     )
 
 
-except:
+else:
     st.write("Please uppload your data")
+    df = pd.read_csv("SalesData.csv")[["GoodName", "StrFactDate", "SaleAmount"]]
+    csv = convert_df(df)
+    st.download_button("Sample Data", csv, "SampleData.csv","text/csv",
+    key='download-csv')
 
