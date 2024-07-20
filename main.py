@@ -35,12 +35,17 @@ st.write("""
          """)
 st.sidebar.write("Controls")
 file = st.sidebar.file_uploader("Uppload Your Dataset", type=".csv")
-
+use_sample_data = st.sidebar.checkbox("Use Sample Data")
 # df = pd.read_csv("SalesData.csv") if file is None else pd.read_csv(file)
 try:
     df = pd.read_csv(file)
     got_data = True
-except: got_data = False
+except:
+    if use_sample_data:
+        df = pd.read_csv("./SalesData.csv") 
+        got_data = True
+    else:
+        got_data = False
 if got_data:
     products = list(df.GoodName.unique())
     product = st.sidebar.selectbox(label="Please select a product", options=products)
