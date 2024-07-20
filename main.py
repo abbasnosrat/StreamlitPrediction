@@ -178,7 +178,7 @@ if got_data:
 
 
 else:
-    st.write("Please uppload your data")
+    st.write("Please upload your data")
     df = pd.read_csv("SalesData.csv")[["GoodName", "StrFactDate", "SaleAmount"]]
     csv = convert_df(df)
     st.download_button("Sample Data", csv, "SampleData.csv","text/csv",
