@@ -34,10 +34,14 @@ st.write("""
          # Prophet
          Hover your cursor on the ? if you want information on each component. Also, the documentation is available on [this Google doc](https://docs.google.com/document/d/1oMk5kQi6FAgqsGGXW-ksRVP8OyhvmnbUnxn0mpi5x2U/edit?usp=sharing). You can find a detailed guide of the app on [this doc](https://docs.google.com/document/d/1J3bzPC_u5nAXrmgdaiQtL9J35yV_dVR7XLDImyE_78Y/edit?usp=sharing)
          """)
+sheet_id = "1PNTC8IvqruHs3DWVX6HW30d2TCM6z3PCxtRMA_qep0M"
+sheet_name = "Sheet1"
+url = f'https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
+helps = pd.read_csv(url,index_col=0)
 st.sidebar.write("Controls")
-file = st.sidebar.file_uploader("Upload Your Dataset", type=".csv",help="You can upload the data you want the model to be trained on")
+file = st.sidebar.file_uploader("Upload Your Dataset", type=".csv",help=helps.loc["Upload Your Dataset"].Description)
 use_sample_data = st.sidebar.checkbox("Use Sample Data",
-                                      help="Check this if you do not want to upload a dataset and want to upload data and the model will be trained on the sample dataset")
+                                      help=helps.loc["Use Sample Data"].Description)
 # df = pd.read_csv("SalesData.csv") if file is None else pd.read_csv(file)
 try:
     df = pd.read_csv(file)
@@ -51,19 +55,12 @@ except:
 if got_data:
     products = list(df.GoodName.unique())
     product = st.sidebar.selectbox(label="Please select a product", options=products,
-                                   help="Select the product you want the model to predict. Once the product is selected, the model will aggregate the product's data on a monthly level and train on it. Keep in mind that the model cannot be trained on a product with low data.")
+                                   help=helps.loc["Please Select A Product"].Description)
     horizon = int(st.sidebar.slider(label="Select Prediction Horizon", min_value=2, max_value=30, value=5,
-                                    help="You can select how many months do you want the model to predict into the future."))
+                                    help=helps.loc["Select Prediction Horizon"].Description))
     test_size_manual = st.sidebar.number_input(label="Select Test Size", min_value=0, max_value=30, value=0,
-                                               help="""The data is divided into training and testing datasets, these datasets are used for tuning the model parameters.
-                                               Sometimes, the test data may suffer a trend change, which is not present in the train data.
-                                               For example, the trend is increasing or flat in the training data and it changes to a declining trend after the split.
-                                               Consequently, the model is not prepared for this change, which leads to poor predictions on the test data.
-                                               To mitigate this issue, you can change how many months are kept as test data. By default, the application keeps 10 months for testing
-                                               if the dataset has more than 20 months and 2 months for if the dataset has less than 20 months of data. The default values are selected if this input's value is zero.""")
-    manual = st.sidebar.checkbox("Manual Mode", help='''The model uses Bayesian optimization for hyper-parameter tuning.
-                                 This process is time consuming and sometimes, it may not find the optimal parameters.
-                                 By checking this box, you can bypass the automatic tuning and select the hyper-parameters manually.''')
+                                               help=helps.loc["Select Test Size"].Description)
+    manual = st.sidebar.checkbox("Manual Mode", help=helps.loc["Manual Mode"].Description)
     
 
 
@@ -112,11 +109,8 @@ if got_data:
                     trials=trials)
     else:
         changepoint_prior_scale_manual=float(st.sidebar.text_input(label="Select changepoint_prior_scale", value=1,
-                                                                   help="""This parameter is the model's sensitivity to changepoints in the data.
-                                                                   A changepoint is a point in the data that the trend completely changes."""))
-        seasonality_prior_scale_manual=float(st.sidebar.text_input(label="Select seasonality_prior_scale", value=1,help="""
-                                                                   This parameter is the model's sensitivity to the seasonal component of the data. 
-                                                                   A seasonal component is a pattern that repeats over time in the data."""))
+                                                                   help=helps.loc["Select changepoint_prior_scale"].Description))
+        seasonality_prior_scale_manual=float(st.sidebar.text_input(label="Select seasonality_prior_scale", value=1,help=helps.loc["Select seasonality_prior_scale"].Description))
         best = {"changepoint_prior_scale":changepoint_prior_scale_manual,
                 "seasonality_prior_scale":seasonality_prior_scale_manual}
 
@@ -181,13 +175,13 @@ if got_data:
             opacity: 1;
         }
         </style>
-        <div class="chart-container">
+       
+    """ + f""" <div class="chart-container">
             <div class="tooltip">
                 <span class="help-icon">❓</span>
-                <span class="tooltiptext">The table depicts the hyper-parameters used for the model training.</span>
+                <span class="tooltiptext">{helps.loc['Parameter Table'].Description}</span>
             </div>
-        </div>
-    """, unsafe_allow_html=True)    
+        </div>""", unsafe_allow_html=True)    
     
 
     st.dataframe(best)
@@ -274,14 +268,13 @@ if got_data:
             opacity: 1;
         }
         </style>
-        <div class="chart-container">
+        
+    """ + f"""<div class="chart-container">
             <div class="tooltip">
                 <span class="help-icon">❓</span>
-                <span class="tooltiptext">The chart displays the model's prediction on the training and the test datasets. The dashed line demonstrates where the data was split.
-                You can change the parameters or the test size manually for improved performance.</span>
+                <span class="tooltiptext">{helps.loc['Tuned Model Predictions'].Description}</span>
             </div>
-        </div>
-    """, unsafe_allow_html=True)
+        </div>""", unsafe_allow_html=True)
 
     st.plotly_chart(fig_tuned)
     # st.plotly_chart(fig_vanilla)
@@ -353,13 +346,13 @@ if got_data:
             opacity: 1;
         }
         </style>
-        <div class="chart-container">
+        
+    """ + f"""<div class="chart-container">
             <div class="tooltip">
                 <span class="help-icon">❓</span>
-                <span class="tooltiptext">The chart displays the predictions for the user-defined prediction horizon. The model behind this chart is trained on the entire dataset.</span>
+                <span class="tooltiptext">{helps.loc['Predictions For N Months'].Description}</span>
             </div>
-        </div>
-    """, unsafe_allow_html=True)
+        </div>""", unsafe_allow_html=True)
     
     
     
