@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  ronakstprediction:
+    image: ronakstprediction
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8001:8001
